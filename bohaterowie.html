@@ -1923,7 +1923,7 @@ searchInput.addEventListener("input", function () {
     cards.forEach(card => {
         const name = card.querySelector(".champion-name").innerText.toLowerCase();
 
-        if (value.length < 2) {
+        if (value.length < 1) {
             card.style.display = "flex";
             return;
         }
