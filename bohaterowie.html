@@ -1923,13 +1923,11 @@ searchInput.addEventListener("input", function () {
     cards.forEach(card => {
         const name = card.querySelector(".champion-name").innerText.toLowerCase();
 
-        // mniej niż 2 litery → pokaż wszystko
         if (value.length < 2) {
             card.style.display = "flex";
             return;
         }
 
-        // TYLKO ciągłe dopasowanie (substring)
         const match = name.indexOf(value) !== -1;
 
         if (match) {
