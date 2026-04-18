@@ -19,6 +19,70 @@
             </nav>
         </div>
     </header>
-    <h1>Rankingi</h1>
-    <p>zjeb bronz</p>
+    <div class="container">
+        <section class="region-selector" style="margin-top: 30px;">
+            <div class="player-card" style="width: 100%; max-width: none; padding: 15px;">
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 10px; text-transform: uppercase;">Wybierz region:</p>
+                <div class="region-tabs">
+                    <button class="region-btn active">North America</button>
+                    <button class="region-btn">Europe West</button>
+                    <button class="region-btn">Europe Nordic & East</button>
+                    <button class="region-btn">Korea</button>
+                    <button class="region-btn">Japan</button>
+                    <button class="region-btn">Brazil</button>
+                    <button class="region-btn">Vietnam</button>
+                </div>
+            </div>
+        </section>
+
+        <header class="section-title" style="margin-top: 30px;">
+            <h2>Globalny Rozkład Rang</h2>
+        </header>
+
+        <main class="ranking-grid">
+            <section class="charts-area">
+                <div class="player-card" style="margin-bottom: 20px; width: 100%; max-width: none;">
+                    <h3 style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; margin-bottom: 20px;">
+                        Tier distribution bar graph
+                    </h3>
+                    <div class="chart-placeholder">[Wykres słupkowy]</div>
+                </div>
+                <div class="player-card" style="width: 100%; max-width: none;">
+                    <h3 style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; margin-bottom: 20px;">
+                        Tier distribution (Pie)
+                    </h3>
+                    <div class="chart-placeholder" style="height: 250px;">[Wykres kołowy]</div>
+                </div>
+            </section>
+
+            <aside class="table-area">
+                <div class="player-card" style="width: 100%; max-width: none;">
+                    <h3 style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; margin-bottom: 20px;">
+                        Detailed league stats
+                    </h3>
+                    <table class="ranking-table">
+                        <thead>
+                            <tr>
+                                <th>Tier</th>
+                                <th>Gracze %</th>
+                                <th>Łącznie</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="pro-name">Challenger</td><td>0.03%</td><td>0.03%</td></tr>
+                            <tr><td style="color: #e74c3c; font-weight: bold;">Grandmaster</td><td>0.07%</td><td>0.10%</td></tr>
+                            <tr><td style="color: #9b59b6; font-weight: bold;">Master</td><td>1.06%</td><td>1.16%</td></tr>
+                            <tr><td style="color: #3498db; font-weight: bold;">Diamond</td><td>3.46%</td><td>4.62%</td></tr>
+                            <tr><td style="color: #2ecc71; font-weight: bold;">Emerald</td><td>10.4%</td><td>15.0%</td></tr>
+                            <tr><td style="color: #1abc9c; font-weight: bold;">Platinum</td><td>17.6%</td><td>32.6%</td></tr>
+                            <tr><td style="color: #f1c40f; font-weight: bold;">Gold</td><td>24.8%</td><td>57.4%</td></tr>
+                            <tr><td style="color: #95a5a6; font-weight: bold;">Silver</td><td>23.2%</td><td>80.6%</td></tr>
+                            <tr><td style="color: #d35400; font-weight: bold;">Bronze</td><td>16.4%</td><td>97.0%</td></tr>
+                            <tr><td style="color: #7f8c8d; font-weight: bold;">Iron</td><td>2.7%</td><td>100%</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </aside>
+        </main>
+    </div>
 </body>
