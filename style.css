@@ -1,4 +1,3 @@
-/* Zmienne CSS dla łatwiejszego zarządzania motywem (op.gg style) */
 :root {
     --bg-main: #1c1c1f;
     --bg-card: #31313c;
@@ -286,7 +285,7 @@ input:checked + .slider:before {
     flex-shrink: 0;
 }
 
-/* Responsywność (Mobile-first podejście na zajęciach!) */
+
 @media (max-width: 768px) {
     .navbar .container {
         flex-direction: column;
@@ -315,7 +314,7 @@ input:checked + .slider:before {
         padding: 15px;
     }
 }
-/* dla rankingow/player distribution by rank */
+
 
 
 .ranking-grid {
