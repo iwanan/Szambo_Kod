@@ -16,13 +16,20 @@
                     <li><a href="bohaterowie.html">Bohaterowie</a></li>
                     <li><a href="rankingi.html">Rankingi</a></li>
                 </ul>
-            </nav>
+            </nav>                 
+            <label class="switch">
+                <input type="checkbox" id="spoilerToggle" onclick="toggleSpoiler()">
+                <span class="slider round"> 
+                </span>
+            </label>
+            JJK Spoiler Toggle
         </div>
     </header>
 
     <main class="container">
         <section class="search-section">
-            <img src="https://preview.redd.it/nah-id-win-v0-epcjymbbd3hc1.jpg?width=640&crop=smart&auto=webp&s=7e3054428206f862ddd30d6df0e28752295da965" alt="Mascot" class="hero-image">
+            <img src="https://preview.redd.it/nah-id-win-v0-epcjymbbd3hc1.jpg?width=640&crop=smart&auto=webp&s=7e3054428206f862ddd30d6df0e28752295da965" id="Nah" class="hero-image">
+            <img src="https://icon2.cleanpng.com/20240323/euu/transparent-smiley-face-happy-face-with-sunglasses-giving-thumbs-up65ff01f051ca37.60074786.webp" id="sunglassesThumbsUp" class="hero-image-off">
             <div class="search-bar">
                 <select class="region-select">
                     <option value="eune">EUNE</option>
@@ -72,5 +79,23 @@
             </div>
         </section>
     </main>
+    <script>
+        function toggleSpoiler() {
+            var checkBox = document.getElementById("spoilerToggle");
+            var jjkImage = document.getElementById("Nah");
+            var emojiImage = document.getElementById("sunglassesThumbsUp");
+            if (checkBox.checked == true){
+                jjkImage.classList.remove("hero-image");
+                jjkImage.classList.add("hero-image-off");
+                emojiImage.classList.remove("hero-image-off");
+                emojiImage.classList.add("hero-image");
+            }else{
+                jjkImage.classList.add("hero-image");
+                jjkImage.classList.remove("hero-image-off");
+                emojiImage.classList.remove("hero-image");
+                emojiImage.classList.add("hero-image-off");
+            }
+        }
+    </script>
 </body>
 </html>
