@@ -17,12 +17,13 @@
                     <li><a href="rankingi.html">Rankingi</a></li>
                 </ul>
             </nav>                 
+            
             <label class="switch">
                 <input type="checkbox" id="spoilerToggle" onclick="toggleSpoiler()">
-                <span class="slider round"> 
-                </span>
+                <span class="slider round"></span>
             </label>
-            JJK Spoiler Toggle
+            <span style="margin-left: 10px; color: white;">JJK Spoiler Toggle</span>
+            
         </div>
     </header>
 
@@ -30,6 +31,8 @@
         <section class="search-section">
             <img src="https://preview.redd.it/nah-id-win-v0-epcjymbbd3hc1.jpg?width=640&crop=smart&auto=webp&s=7e3054428206f862ddd30d6df0e28752295da965" id="Nah" class="hero-image">
             <img src="https://icon2.cleanpng.com/20240323/euu/transparent-smiley-face-happy-face-with-sunglasses-giving-thumbs-up65ff01f051ca37.60074786.webp" id="sunglassesThumbsUp" class="hero-image-off">
+            <img src="https://i.redd.it/jw82rvev3i7e1.png" id="gojoLost" class="hero-image-off">
+            <img src="https://pbs.twimg.com/media/F3v2hoUbgAAHnzu.jpg" id="sadGuy" class="hero-image-off">
             <div class="search-bar">
                 <select class="region-select">
                     <option value="eune">EUNE</option>
@@ -37,7 +40,7 @@
                     <option value="na">NA</option>
                 </select>
                 <input type="text" placeholder="Nazwa gracza + #TAG" class="search-input">
-                <button class="search-button">Szukaj</button>
+                <button class="search-button" onclick="reactToWinrate()">Szukaj</button>
             </div>
         </section>
 
@@ -54,7 +57,7 @@
                         </div>
                     </div>
                     <div class="stats">
-                        <div class="stat-row"><span>Winrate:</span> <strong>52%</strong></div>
+                        <div class="stat-row"><span>Winrate:</span> <input type="text" placeholder="%" id="winrate-input"> </div>
                         <div class="stat-row"><span>KDA:</span> <strong>2.80:1</strong></div>
                         <div class="stat-row"><span>CS/min:</span> <strong>6.5</strong></div>
                     </div>
@@ -71,7 +74,7 @@
                         </div>
                     </div>
                     <div class="stats">
-                        <div class="stat-row"><span>Winrate:</span> <strong>68%</strong></div>
+                        <div class="stat-row"><span>Winrate:</span> <strong  id="iwananWinRate">68%</strong></div>
                         <div class="stat-row"><span>KDA:</span> <strong>4.95:1</strong></div>
                         <div class="stat-row"><span>CS/min:</span> <strong>9.8</strong></div>
                     </div>
@@ -80,20 +83,62 @@
         </section>
     </main>
     <script>
+        function swapImages(newImage, oldImage) {
+            if (!oldImage || !newImage) return;
+            oldImage.classList.remove("hero-image");
+            oldImage.classList.add("hero-image-off");
+            newImage.classList.remove("hero-image-off");
+            newImage.classList.add("hero-image");   
+        }
+
         function toggleSpoiler() {
             var checkBox = document.getElementById("spoilerToggle");
-            var jjkImage = document.getElementById("Nah");
-            var emojiImage = document.getElementById("sunglassesThumbsUp");
-            if (checkBox.checked == true){
-                jjkImage.classList.remove("hero-image");
-                jjkImage.classList.add("hero-image-off");
-                emojiImage.classList.remove("hero-image-off");
-                emojiImage.classList.add("hero-image");
-            }else{
-                jjkImage.classList.add("hero-image");
-                jjkImage.classList.remove("hero-image-off");
-                emojiImage.classList.remove("hero-image");
-                emojiImage.classList.add("hero-image-off");
+            var jjkWin = document.getElementById("Nah");
+            var emojiWin = document.getElementById("sunglassesThumbsUp");
+            var jjkLoss = document.getElementById("gojoLost");
+            var emojiLoss = document.getElementById("sadGuy");
+
+            // Swap out the currently active images based on the toggle switch
+            if (checkBox.checked) {
+                if (jjkWin.classList.contains("hero-image")) swapImages(emojiWin, jjkWin);
+                if (jjkLoss.classList.contains("hero-image")) swapImages(emojiLoss, jjkLoss);
+            } else {
+                if (emojiWin.classList.contains("hero-image")) swapImages(jjkWin, emojiWin);
+                if (emojiLoss.classList.contains("hero-image")) swapImages(jjkLoss, emojiLoss);
+            }
+        }
+
+        function reactToWinrate() {
+            // 1. Get the raw text
+            var userWinrateText = document.getElementById("winrate-input").value;
+            var proWinrateText = document.getElementById("iwananWinRate").textContent;
+            var checkBox = document.getElementById("spoilerToggle");
+            
+            // 2. Convert the text to actual numbers 
+            var userWinrateNum = parseFloat(userWinrateText);
+            var proWinrateNum = parseFloat(proWinrateText);
+
+            var jjkLoss = document.getElementById("gojoLost");
+            var jjkWin = document.getElementById("Nah");
+            var emojiWin = document.getElementById("sunglassesThumbsUp");
+            var emojiLoss = document.getElementById("sadGuy");
+            
+            // Find the image that is currently being displayed
+            var currentActiveImage = document.querySelector(".hero-image");
+
+            // 3. Compare the numbers and swap to correct image based on win/loss AND the spoiler toggle
+            if (userWinrateNum <= proWinrateNum || isNaN(userWinrateNum)) {
+                if (checkBox.checked) {
+                    swapImages(emojiWin, currentActiveImage);
+                } else {
+                    swapImages(jjkWin, currentActiveImage);
+                }
+            } else {
+                if (checkBox.checked) {
+                    swapImages(emojiLoss, currentActiveImage);
+                } else {
+                    swapImages(jjkLoss, currentActiveImage);
+                }
             }
         }
     </script>
