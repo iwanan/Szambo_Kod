@@ -400,3 +400,13 @@ input:checked + .slider:before {
 .ranking-table tr:hover {
     background-color: rgba(255, 255, 255, 0.02);
 }
+/* Zapewnia, że canvas nie "rozsadzi" karty */
+canvas {
+    max-width: 100% !important;
+    max-height: 300px !important;
+}
+
+/* Styl dla przycisku kursora, żeby było wiadomo, że można klikać */
+.region-btn {
+    user-select: none;
+}
