@@ -5,21 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iwanan.gg - Rankingi</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Biblioteka do wykresów -->
+    <!-- Ładowanie biblioteki na samej górze -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        /* Stylizujemy canvas, żeby nie uciekał z kart */
-        canvas {
-            max-width: 100% !important;
-            max-height: 300px !important;
-        }
-        .chart-container {
-            position: relative;
-            margin: auto;
-            height: 300px;
-            width: 100%;
-        }
-    </style>
 </head>
 <body>
     <header class="navbar">
@@ -36,7 +23,6 @@
     </header>
 
     <div class="container">
-        <!-- Sekcja Regionów -->
         <section class="region-selector" style="margin-top: 30px;">
             <div class="player-card" style="width: 100%; max-width: none; padding: 15px;">
                 <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 10px; text-transform: uppercase;">Wybierz region:</p>
@@ -56,45 +42,35 @@
             <h2>Globalny Rozkład Rang</h2>
         </header>
 
-        <main class="ranking-grid">
+        <main class="ranking-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
             <section class="charts-area">
-                <!-- Wykres Słupkowy -->
-                <div class="player-card" style="margin-bottom: 20px; width: 100%; max-width: none;">
-                    <h3 style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; margin-bottom: 20px;">
-                        Tier distribution bar graph
-                    </h3>
-                    <div class="chart-container">
+                <div class="player-card" style="margin-bottom: 20px; padding: 20px;">
+                    <h3 style="color: var(--text-muted); text-transform: uppercase; font-size: 0.9rem; margin-bottom: 15px;">Tier distribution bar graph</h3>
+                    <div style="height: 300px; position: relative;">
                         <canvas id="barChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Wykres Kołowy -->
-                <div class="player-card" style="width: 100%; max-width: none;">
-                    <h3 style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; margin-bottom: 20px;">
-                        Tier distribution (Pie)
-                    </h3>
-                    <div class="chart-container" style="height: 250px;">
+                <div class="player-card" style="padding: 20px;">
+                    <h3 style="color: var(--text-muted); text-transform: uppercase; font-size: 0.9rem; margin-bottom: 15px;">Tier distribution (Pie)</h3>
+                    <div style="height: 300px; position: relative;">
                         <canvas id="pieChart"></canvas>
                     </div>
                 </div>
             </section>
 
-            <!-- Tabela -->
             <aside class="table-area">
-                <div class="player-card" style="width: 100%; max-width: none;">
-                    <h3 style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; margin-bottom: 20px;">
-                        Detailed league stats
-                    </h3>
-                    <table class="ranking-table">
+                <div class="player-card" style="padding: 20px;">
+                    <h3 style="color: var(--text-muted); text-transform: uppercase; font-size: 0.9rem; margin-bottom: 15px;">Detailed league stats</h3>
+                    <table class="ranking-table" style="width: 100%; border-collapse: collapse;">
                         <thead>
-                            <tr>
+                            <tr style="text-align: left; color: var(--text-muted); font-size: 0.8rem;">
                                 <th>Tier</th>
                                 <th>Gracze %</th>
                                 <th>Łącznie</th>
                             </tr>
                         </thead>
-                        <tbody id="table-body">
-                            <!-- Dane w tabeli -->
+                        <tbody>
                             <tr><td class="pro-name">Challenger</td><td>0.03%</td><td>0.03%</td></tr>
                             <tr><td style="color: #e74c3c; font-weight: bold;">Grandmaster</td><td>0.07%</td><td>0.10%</td></tr>
                             <tr><td style="color: #9b59b6; font-weight: bold;">Master</td><td>1.06%</td><td>1.16%</td></tr>
@@ -113,72 +89,69 @@
     </div>
 
     <script>
-        // --- 1. LOGIKA PRZYCISKÓW REGIONÓW ---
-        const buttons = document.querySelectorAll('.region-btn');
-        buttons.forEach(btn => {
-            btn.addEventListener('click', function() {
-                buttons.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                console.log("Wybrano region: " + this.innerText);
-            });
-        });
+        // Czekamy, aż cała strona (w tym biblioteki) się załaduje
+        window.onload = function() {
+            // Dane
+            const labels = ['Iron', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Emerald', 'Diamond', 'Master+'];
+            const dataValues = [2.7, 16.4, 23.2, 24.8, 17.6, 10.4, 3.46, 1.16];
+            const colors = ['#7f8c8d', '#d35400', '#95a5a6', '#f1c40f', '#1abc9c', '#2ecc71', '#3498db', '#9b59b6'];
 
-        // --- 2. DANE I KOLORY ---
-        const labels = ['Iron', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Emerald', 'Diamond', 'Master+'];
-        const dataValues = [2.7, 16.4, 23.2, 24.8, 17.6, 10.4, 3.46, 1.16];
-        const colors = ['#7f8c8d', '#d35400', '#95a5a6', '#f1c40f', '#1abc9c', '#2ecc71', '#3498db', '#9b59b6'];
-
-        // --- 3. WYKRES SŁUPKOWY ---
-        const ctxBar = document.getElementById('barChart').getContext('2d');
-        new Chart(ctxBar, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: dataValues,
-                    backgroundColor: colors,
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { 
-                        beginAtZero: true, 
-                        grid: { color: 'rgba(255,255,255,0.05)' },
-                        ticks: { color: '#9e9eb1' }
+            // 1. Wykres Słupkowy
+            const barCtx = document.getElementById('barChart');
+            if (barCtx) {
+                new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: dataValues,
+                            backgroundColor: colors,
+                            borderRadius: 4
+                        }]
                     },
-                    x: { 
-                        grid: { display: false },
-                        ticks: { color: '#9e9eb1' }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9e9eb1' } },
+                            x: { grid: { display: false }, ticks: { color: '#9e9eb1' } }
+                        }
                     }
-                }
+                });
             }
-        });
 
-        // --- 4. WYKRES KOŁOWY ---
-        const ctxPie = document.getElementById('pieChart').getContext('2d');
-        new Chart(ctxPie, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: dataValues,
-                    backgroundColor: colors,
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                cutout: '70%'
+            // 2. Wykres Kołowy
+            const pieCtx = document.getElementById('pieChart');
+            if (pieCtx) {
+                new Chart(pieCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: dataValues,
+                            backgroundColor: colors,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        cutout: '70%'
+                    }
+                });
             }
-        });
+
+            // 3. Obsługa przycisków
+            const buttons = document.querySelectorAll('.region-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    buttons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        };
     </script>
 </body>
 </html>
