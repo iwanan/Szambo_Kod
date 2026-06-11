@@ -16,7 +16,7 @@
                     <li><a href="bohaterowie.html">Bohaterowie</a></li>
                     <li><a href="rankingi.html">Rankingi</a></li>
                 </ul>
-            </nav>                 
+            </nav>                
             
             <label class="switch">
                 <input type="checkbox" id="spoilerToggle" onclick="toggleSpoiler()">
@@ -39,8 +39,8 @@
                     <option value="euw">EUW</option>
                     <option value="na">NA</option>
                 </select>
-                <input type="text" placeholder="Nazwa gracza + #TAG" class="search-input">
-                <button class="search-button" onclick="reactToWinrate()">Szukaj</button>
+                <input type="text" placeholder="Nazwa gracza #TAG" class="search-input">
+                <button class="search-button" onclick="fetchPlayerData()">Szukaj</button>
             </div>
         </section>
 
@@ -52,14 +52,14 @@
                     <div class="card-header">
                         <div class="avatar placeholder"></div>
                         <div class="info">
-                            <h3>Twój Nick</h3>
-                            <span class="rank">Gold II</span>
+                            <h3 id="user-name">Twój Nick</h3>
+                            <span class="rank" id="user-rank">Unranked</span>
                         </div>
                     </div>
                     <div class="stats">
-                        <div class="stat-row"><span>Winrate:</span> <input type="text" placeholder="%" id="winrate-input"> </div>
-                        <div class="stat-row"><span>KDA:</span> <strong>2.80:1</strong></div>
-                        <div class="stat-row"><span>CS/min:</span> <strong>6.5</strong></div>
+                        <div class="stat-row"><span>Winrate:</span> <input type="text" placeholder="%" id="winrate-input" readonly style="width: 50px; background: transparent; border: none; color: white; font-weight: bold; outline: none;"> </div>
+                        <div class="stat-row"><span>KDA:</span> <strong>?</strong></div>
+                        <div class="stat-row"><span>CS/min:</span> <strong>?</strong></div>
                     </div>
                 </div>
 
@@ -70,11 +70,11 @@
                         <div class="avatar iwanan-avatar"></div>
                         <div class="info">
                             <h3 class="pro-name">Tomasz "iwanan" Gaś</h3>
-                            <span class="rank challenger">Challenger 1200 LP</span>
+                            <span class="rank challenger" id="iwanan-rank">Ładowanie...</span>
                         </div>
                     </div>
                     <div class="stats">
-                        <div class="stat-row"><span>Winrate:</span> <strong  id="iwananWinRate">68%</strong></div>
+                        <div class="stat-row"><span>Winrate:</span> <strong id="iwananWinRate">...</strong></div>
                         <div class="stat-row"><span>KDA:</span> <strong>4.95:1</strong></div>
                         <div class="stat-row"><span>CS/min:</span> <strong>9.8</strong></div>
                     </div>
@@ -83,6 +83,8 @@
         </section>
     </main>
     <script>
+        const API_KEY = "RGAPI-ca6054ed-1571-4f47-92eb-5c8d126f1209";
+
         function swapImages(newImage, oldImage) {
             if (!oldImage || !newImage) return;
             oldImage.classList.remove("hero-image");
@@ -98,7 +100,6 @@
             var jjkLoss = document.getElementById("gojoLost");
             var emojiLoss = document.getElementById("sadGuy");
 
-            // Swap out the currently active images based on the toggle switch
             if (checkBox.checked) {
                 if (jjkWin.classList.contains("hero-image")) swapImages(emojiWin, jjkWin);
                 if (jjkLoss.classList.contains("hero-image")) swapImages(emojiLoss, jjkLoss);
@@ -106,16 +107,124 @@
                 if (emojiWin.classList.contains("hero-image")) swapImages(jjkWin, emojiWin);
                 if (emojiLoss.classList.contains("hero-image")) swapImages(jjkLoss, emojiLoss);
             }
+
+        }
+        async function fetchIwananData() {
+            const gameName = "iwanan";
+            const tagLine = "7596";
+            const accountRouting = "europe";
+            const platformRouting = "euw1"; // Domyślnie szukamy go na EUW (możesz zmienić na eun1)
+
+            try {
+                // PUUID
+                const accountUrl = `https://${accountRouting}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}?api_key=${API_KEY}`;
+                const accountRes = await fetch(accountUrl);
+                if(!accountRes.ok) throw new Error("Nie znaleziono konta Iwanana.");
+                const accountData = await accountRes.json();
+                const puuid = accountData.puuid;
+                
+                
+                // Ranga
+                const leagueUrl = `https://${platformRouting}.api.riotgames.com/lol/league/v4/entries/by-puuid/${puuid}?api_key=${API_KEY}`;
+                const leagueRes = await fetch(leagueUrl);
+                if(!leagueRes.ok) throw new Error("Błąd pobierania rankingu Iwanana.");
+                const leagueData = await leagueRes.json();
+                
+                const soloQ = leagueData.find(q => q.queueType === "RANKED_SOLO_5x5");
+                
+                if(soloQ) {
+                    const wins = soloQ.wins;
+                    const losses = soloQ.losses;
+                    const winrate = Math.round((wins / (wins + losses)) * 100);
+                    const rankText = `${soloQ.tier} ${soloQ.rank} (${soloQ.leaguePoints} LP)`;
+                    
+                    document.getElementById("iwanan-rank").textContent = rankText;
+                    document.getElementById("iwananWinRate").textContent = `${winrate}` + "%";
+                } else {
+                    document.getElementById("iwanan-rank").textContent = "Unranked";
+                    document.getElementById("iwananWinRate").textContent = "0";
+                }
+            } catch (err) {
+                console.error("Błąd ładowania Bossa:", err);
+                document.getElementById("iwanan-rank").textContent = "Błąd API";
+                document.getElementById("iwananWinRate").textContent = "68"; // Fallback awaryjny
+            }
         }
 
-        function reactToWinrate() {
-            // 1. Get the raw text
-            var userWinrateText = document.getElementById("winrate-input").value;
+        async function fetchPlayerData() {
+            const rawInput = document.querySelector(".search-input").value.trim();
+            const regionVal = document.querySelector(".region-select").value;
+            
+            if(!rawInput.includes("#")) {
+                alert("Wpisz Riot ID w poprawnym formacie: Nazwa#TAG (np. Hide on bush#KR1)");
+                return;
+            }
+
+            const [gameName, tagLine] = rawInput.split("#");
+            
+            // Riot API wymaga różnych prefiksów w zależności od endpointu
+            let accountRouting = "europe";
+            let platformRouting = "eun1";
+            
+            if (regionVal === "euw") {
+                platformRouting = "euw1";
+                accountRouting = "europe";
+            } else if (regionVal === "na") {
+                platformRouting = "na1";
+                accountRouting = "americas";
+            } else {
+                platformRouting = "eun1";
+                accountRouting = "europe";
+            }
+            
+            try {
+                //Pobranie PUUID z Riot ID
+                const accountUrl = `https://${accountRouting}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}?api_key=${API_KEY}`;
+                const accountRes = await fetch(accountUrl);
+                if(!accountRes.ok) throw new Error("Nie znaleziono gracza o podanym Riot ID.");
+                const accountData = await accountRes.json();
+                const puuid = accountData.puuid;
+                
+                
+                //Pobranie statystyk rankingowych (Winrate, ranga)
+                const leagueUrl = `https://${platformRouting}.api.riotgames.com/lol/league/v4/entries/by-puuid/${puuid}?api_key=${API_KEY}`;
+                const leagueRes = await fetch(leagueUrl);
+                if(!leagueRes.ok) throw new Error("Błąd pobierania rankingu gracza.");
+                const leagueData = await leagueRes.json();
+                
+                // Szukamy kolejki Solo/Duo
+                const soloQ = leagueData.find(q => q.queueType === "RANKED_SOLO_5x5");
+                
+                let winrate = 0;
+                let rankText = "Unranked";
+                
+                if(soloQ) {
+                    const wins = soloQ.wins;
+                    const losses = soloQ.losses;
+                    winrate = Math.round((wins / (wins + losses)) * 100);
+                    rankText = `${soloQ.tier} ${soloQ.rank} (${soloQ.leaguePoints} LP)`;
+                } else {
+                    alert("Ten gracz nie rozegrał jeszcze żadnych gier rankingowych w Solo/Duo.");
+                    return;
+                }
+                
+                // Aktualizacja interfejsu (UI)
+                document.getElementById("user-name").textContent = `${gameName}#${tagLine}`;
+                document.getElementById("user-rank").textContent = rankText;
+                document.getElementById("winrate-input").value = `${winrate}%`;
+                
+                reactToWinrate(winrate);
+                
+            } catch(err) {
+                alert("Błąd: " + err.message);
+                console.error(err);
+            }
+        }
+
+        function reactToWinrate(userWinrateNum) {
             var proWinrateText = document.getElementById("iwananWinRate").textContent;
             var checkBox = document.getElementById("spoilerToggle");
             
-            // 2. Convert the text to actual numbers 
-            var userWinrateNum = parseFloat(userWinrateText);
             var proWinrateNum = parseFloat(proWinrateText);
 
             var jjkLoss = document.getElementById("gojoLost");
@@ -123,10 +232,9 @@
             var emojiWin = document.getElementById("sunglassesThumbsUp");
             var emojiLoss = document.getElementById("sadGuy");
             
-            // Find the image that is currently being displayed
             var currentActiveImage = document.querySelector(".hero-image");
 
-            // 3. Compare the numbers and swap to correct image based on win/loss AND the spoiler toggle
+            // Mechanika podmiany
             if (userWinrateNum <= proWinrateNum || isNaN(userWinrateNum)) {
                 if (checkBox.checked) {
                     swapImages(emojiWin, currentActiveImage);
@@ -141,6 +249,7 @@
                 }
             }
         }
+        window.onload = fetchIwananData;
     </script>
 </body>
 </html>
